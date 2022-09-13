@@ -1,0 +1,81 @@
+<h3>Guess the flag! (In spanish)</h3>
+
+<div class="container">
+    <h4 id="title"></h4>
+    <div class="image">
+        <img style="display: none;" id="img" src="{{url}}/flags/{{flag.path}}" alt="{{flag.name}}" width="{{flag.width}}" height="{{flag.height}}">
+        <canvas id="canvas" width="{{flag.width}}" height="{{flag.height}}" style="border:1px solid #000000;">
+            
+        </canvas>
+    </div>
+
+    <select name="country" id="country">
+        <option value="null" selected>Select One</option>
+        {{#each files}}
+            <option value="{{this.value}}">{{this.name}}</option>
+        {{/each}}
+    </select>
+</div>
+
+<script>
+    let game = [0, 0, 0, 0, 0, 0];    
+    const cords = {
+        0: [[0, 0],     [100, 100]],
+        1: [[100, 0],   [100, 100]],
+        2: [[200, 0],   [300, 100]],
+        3: [[0, 100],   [100, 200]],
+        4: [[100, 100], [100, 200]],
+        5: [[200, 100], [300, 200]],
+    }
+
+    window.onload = () => {
+        const canvas = document.getElementById('canvas');
+        const image = document.getElementById('img');
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0, {{flag.width}}, {{flag.height}});
+        squares(game);
+    }
+
+    const select = document.getElementById('country');
+    select.onchange = (event) => {
+        const value = event.target.value;
+        event.target.value = 'null';
+        if (value == 'null') return;
+        if (value != "{{flag.name}}") {
+            game = randomNumber(game);
+            if (game.filter((x) => x == 0).length == 0) {
+                document.getElementById('title').innerHTML = 'You have lost, the country was {{flag.name}}';
+            }
+            squares(game)
+        }
+        else {
+            squares([1, 1, 1, 1, 1, 1])
+            document.getElementById('title').innerHTML = 'You have won, the country was {{flag.name}}';
+        }
+    }
+    
+    // Stage is an array with 6 different values, 3 for each row.
+    function squares (stage) {
+        console.log('SQUARES FUNCTION', stage);
+        if (typeof stage != "object") throw new Error("Invalid Date type");
+        const canvas = document.getElementById('canvas');
+        const image = document.getElementById('img');
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0, {{flag.width}}, {{flag.height}});
+        stage.forEach((number, index) => {
+            if (number == 1) return;
+            ctx.beginPath();
+            ctx.fillStyle = "black";
+            ctx.fillRect(cords[index][0][0], cords[index][0][1], cords[index][1][0], cords[index][1][1]);
+        });
+    }
+
+    function randomNumber (stage) {
+        const index = Math.floor(Math.random() * 6);
+        if (stage[index] != 0) randomNumber(stage);
+        stage[index] = 1;
+        return stage;
+    }
+</script>
